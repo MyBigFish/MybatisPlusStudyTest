@@ -26,41 +26,29 @@ public class UserServiceTest {
     private UserMapper userMapper;
 
     @Test
-    public void testDelete() {
-        User user = new User();
-        user.setAge(10);
-        user.setName("Testdel");
+    @Sql(statements = "delete from user",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @DisplayName("测试查询json数据")
+    public void testJson() {
+        Remark remark = new Remark();
+        remark.setCity("beijing");
+        remark.setCode("1002");
+
+        User user = new User("TestJson", 20, "test@163.com", remark);
         userMapper.insert(user);
-        userMapper.deleteById(user);
-    }
-
-    @Test
-    public void DynamicQuery(){
-        String  name = "Tom";
-        Integer age = null;
-        String email = null;
-        QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.eq(StringUtils.isNotBlank(name),"name",name)
-                .eq(age!=null && age > 0 ,"age" ,age)
-                .eq(StringUtils.isNotBlank(email),"email",email);
-        List<User> users = userMapper.selectList(wrapper);
-        users.forEach(System.out::println);
-    }
-
-    @Test
-    public void testAutoFill() throws InterruptedException {
-        User user = new User();
-        user.setAge(10);
-        user.setName("Testdel");
-        userMapper.insert(user);
-        userMapper.selectById(user.getId());
-        System.out.println("插入数据：" + user);
-
-        user.setAge(12);
-        Thread.sleep(5 * 1000);
-        userMapper.updateById(user);
         User user2 = userMapper.selectById(user.getId());
-        System.out.println("更新后数据：" + user2);
+        System.out.println("插入后数据：" + user2);
+
+        //查询json
+        String city = "bei";
+        String code = "1002";
+        List<User> list = new LambdaQueryChainWrapper<>(userMapper)
+                .apply(StringUtils.isNotBlank(city),
+                        "remark->'$.city' like CONCAT('%',{0},'%') ", city)
+                .apply(StringUtils.isNotBlank(code),
+                        "remark->'$.code'= {0} ", code)
+                .list();
+        System.out.println("查询结果：" + list.toString());
 
     }
 
@@ -95,30 +83,7 @@ public class UserServiceTest {
 
     }
 
-    @Test
-    @Sql(statements = "delete from user",
-            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @DisplayName("测试查询json数据")
-    public void testJson() {
-        Remark remark = new Remark();
-        remark.setCity("beijing");
-        remark.setCode("1002");
 
-        User user = new User("TestJson", 20, "test@163.com", remark);
-        userMapper.insert(user);
-        User user2 = userMapper.selectById(user.getId());
-        System.out.println("插入后数据：" + user2);
-
-        //查询json
-        String city = "bei";
-        String code = "1002";
-        List<User> list = new LambdaQueryChainWrapper<>(userMapper)
-                .apply(StringUtils.isNotBlank(city), "remark->'$.city' like CONCAT('%',{0},'%') ", city)
-                .apply(StringUtils.isNotBlank(code), "remark->'$.code'= {0} ", code)
-                .list();
-        System.out.println("查询结果：" + list.toString());
-
-    }
 
     @Test
     @Sql(statements = "delete from user",
@@ -157,5 +122,50 @@ public class UserServiceTest {
         User user5 = userMapper.selectById(user4.getId());
         System.out.println("重新插入后数据：" + user5);
     }
+
+
+
+
+
+
+    @Test
+    public void testDelete() {
+        User user = new User();
+        user.setAge(10);
+        user.setName("Testdel");
+        userMapper.insert(user);
+        userMapper.deleteById(user);
+    }
+
+    @Test
+    public void DynamicQuery(){
+        String  name = "Tom";
+        Integer age = null;
+        String email = null;
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq(StringUtils.isNotBlank(name),"name",name)
+                .eq(age!=null && age > 0 ,"age" ,age)
+                .eq(StringUtils.isNotBlank(email),"email",email);
+        List<User> users = userMapper.selectList(wrapper);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    public void testAutoFill() throws InterruptedException {
+        User user = new User();
+        user.setAge(10);
+        user.setName("Testdel");
+        userMapper.insert(user);
+        userMapper.selectById(user.getId());
+        System.out.println("插入数据：" + user);
+
+        user.setAge(12);
+        Thread.sleep(5 * 1000);
+        userMapper.updateById(user);
+        User user2 = userMapper.selectById(user.getId());
+        System.out.println("更新后数据：" + user2);
+
+    }
+
 
 }
