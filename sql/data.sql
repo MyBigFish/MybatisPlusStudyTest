@@ -3,19 +3,24 @@ DROP TABLE IF EXISTS user;
 
 CREATE TABLE user
 (
-    id BIGINT(20) NOT NULL COMMENT '主键ID',
-    name VARCHAR(30) NULL DEFAULT NULL COMMENT '姓名',
-    age INT(11) NULL DEFAULT NULL COMMENT '年龄',
-    email VARCHAR(50) NULL DEFAULT NULL COMMENT '邮箱',
-    PRIMARY KEY (id)
-);
-
-
-DELETE FROM user;
-
-INSERT INTO user (id, name, age, email) VALUES
-                                            (1, 'Jone', 18, 'test1@baomidou.com'),
-                                            (2, 'Jack', 20, 'test2@baomidou.com'),
-                                            (3, 'Tom', 28, 'test3@baomidou.com'),
-                                            (4, 'Sandy', 21, 'test4@baomidou.com'),
-                                            (5, 'Billie', 24, 'test5@baomidou.com');
+    `id` BIGINT(20) NOT NULL auto_increment COMMENT '主键ID',
+    `name` VARCHAR(30) not NULL DEFAULT '' COMMENT '姓名',
+    `age` INT(11) not null DEFAULT 0 NULL COMMENT '年龄',
+    `email` VARCHAR(50) not NULL DEFAULT '' COMMENT '邮箱',
+    `create_time` datetime not null default CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `remark` json default null comment '备注',
+    `is_delete` bigint(20) not null default 0 comment '是否删除',
+    PRIMARY KEY (id),
+    UNIQUE KEY `uniq_email_is_delete` (`email`, `is_delete`)
+) ENGINE = InnoDB AUTO_INCREMENT = 1000 DEFAULT CHARSET = utf8mb4 COMMENT ='用户';
+#
+#
+# DELETE FROM user;
+#
+# INSERT INTO user (`name`, `age`, `email`) VALUES
+#                                             ('Jone', 18, 'test1@baomidou.com'),
+#                                             ('Jack', 20, 'test2@baomidou.com'),
+#                                             ('Tom', 28, 'test3@baomidou.com'),
+#                                             ('Sandy', 21, 'test4@baomidou.com'),
+#                                             ('Billie', 24, 'test5@baomidou.com');
